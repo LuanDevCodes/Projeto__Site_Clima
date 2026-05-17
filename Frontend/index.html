@@ -1,0 +1,40 @@
+<!-- Criação da página principal aonde tudo ficará exibido -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitoramento Climático</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+    <div class="container-dashboard">
+        
+        <h1 class="titulo-principal">Monitoramento do Histórico de Climas</h1>
+
+        <div class="controles-dashboard">
+            <div class="botoes-esquerda">
+                <button id="btn-cadastrar-cidade" onclick="window.location.href='cadastro_cidade.html'">Cadastrar Nova Cidade</button>
+                <button id="btn-nova-temp">Registrar Temperatura</button>
+            </div>
+
+            <div class="listas-direita">
+                <select id="select-data">
+                    <option value="">Selecionar data</option>
+                </select>
+                <select id="select-cidade">
+                    <option value="">Selecionar cidade</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="quadro-dashboard">
+            <h2>Top 10 cidades mais quentes registradas</h2>
+            <ul id="lista-top-10">
+                <li>Aguardando conexão com a API</li>
+            </ul>
+        </div>
+
+    </div>
+</body>
+</html>

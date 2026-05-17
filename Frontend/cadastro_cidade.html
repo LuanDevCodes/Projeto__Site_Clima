@@ -1,0 +1,101 @@
+<!-- Página para o cadastro de uma nova cidade, fiz uma integração com a API do Ibge para exibir um dropdown somente com cidades existentes -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar Nova Cidade</title>
+    <link rel="stylesheet" href="src/styles.css"> <!-- Referênciando o arquivo de estilos -->
+</head>
+<body>
+
+    <div class="caixa-formulario">
+        <h3>Escolha a cidade na lista abaixo:</h3>
+        
+        <select id="select-cidade">
+            <option value="">Carregando cidades do IBGE...</option>
+        </select>
+
+        <div class="container-botoes">
+            <button id="btn-cancelar" onclick="window.location.href='index.html'">Cancelar</button>
+            <button id="btn-registrar">Registrar</button>
+        </div>
+
+        <div id="aviso-erro">A cidade já está cadastrada no sistema</div>
+    </div>
+
+    <script>
+        // carregando as cidades do IBGE ao abrir a página
+        document.addEventListener('DOMContentLoaded', async () => {
+            const dropdown = document.getElementById('select-cidade');
+            try {
+                // Busca a lista do Brasil todo por meio de uma API pública
+                const resposta = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
+                const cidades = await resposta.json();
+                
+                // Organiza a lista em ordem alfabética (A-Z)
+                cidades.sort((a, b) => a.nome.localeCompare(b.nome));
+                
+                dropdown.innerHTML = '<option value="">Selecione uma cidade</option>';
+                
+                // Preenche o dropdown com os nomes
+                cidades.forEach(cidade => {
+                    const opcao = document.createElement('option');
+                    opcao.value = cidade.nome;
+                    opcao.textContent = cidade.nome;
+                    dropdown.appendChild(opcao);
+                });
+            } catch (erro) {
+                dropdown.innerHTML = '<option value="">Erro ao carregar cidades</option>';
+            }
+        });
+
+        // A ação do Botão Registrar
+        document.getElementById('btn-registrar').addEventListener('click', async () => {
+            const nomeCidadeEscolhida = document.getElementById('select-cidade').value;
+            const divAviso = document.getElementById('aviso-erro');
+            
+            // Esconde o aviso sempre que clicar, para resetar
+            divAviso.style.display = 'none'; 
+
+            if (nomeCidadeEscolhida === "") {
+                divAviso.textContent = "Por favor, selecione uma cidade na lista";
+                divAviso.style.display = 'block';
+                return; // Para a execução aqui
+            }
+
+            try {
+                // Envia a cidade para a API do Python (Flask)
+                const resposta = await fetch('http://127.0.0.1:5000/cidades', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome: nomeCidadeEscolhida }) //Transformando em um arquivo JSON para ser aceito
+                });
+
+                const dados = await resposta.json();
+
+                // Verifica o Status Code que o Python devolveu
+                if (resposta.status === 201) {
+                    alert(dados.mensagem); // Alert de sucesso
+                    window.location.href = 'index.html'; // Volta pra home
+                
+                } else if (resposta.status === 409) {
+                    
+                    // Erro 409 é o que configurei no Python para cidade duplicada
+                    divAviso.textContent = "A cidade já está cadastrada no sistema, escolha outra e tente novamente";
+                    divAviso.style.display = 'block'; // Mostra a div vermelha abaixo dos botões
+                
+                } else {
+                    divAviso.textContent = dados.erro;
+                    divAviso.style.display = 'block';
+                }
+
+            } catch (erro) {
+                divAviso.textContent = "Erro ao conectar com a API";
+                divAviso.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Configurando os arquivos que serão ignorados
+
+# O arquivo de configuração ENV
+.env
+
+# Alguns arquivos da pasta que servem apenas de guia, não sendo essenciais ao projeto
+*.pdf
+*.png
+
+# Cache do Python e arquivos compilados
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ambientes Virtuais (por via das dúvidas)
+venv/
+.venv/
+env/
+
+# Configurações de IDE e Sistema Operacional (por via das dúvidas)
+.vscode/
+.idea/
+.DS_Store

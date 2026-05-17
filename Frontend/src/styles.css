@@ -1,0 +1,175 @@
+/* Arquivo principal de estilos, válido para todas as páginas do projeto */
+
+/* =========================================
+   ESTILOS GERAIS (Base para todas as páginas)
+   ========================================= */
+
+body {
+    background-color: #eae9e9; /* Amarelo bem claro */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Padronização de todos os botões do sistema */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: white;
+    transition: 0.2s; /* Efeito suave ao passar o mouse */
+}
+
+button:hover {
+    opacity: 0.8; /* Dá uma leve clareada no botão ao passar o mouse */
+}
+
+select {
+    padding: 10px;
+    border: 2px solid #656565; /* Borda cinza padrão */
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #ffffff;
+}
+
+/* =========================================
+   ESTILOS DA HOME PAGE (Dashboard principal)
+   ========================================= */
+.container-dashboard {
+    max-width: 900px; /* Mantém tudo alinhado e evita que estique em telas muito largas */
+    margin: 0 auto;   /* Centraliza o bloco do dashboard no meio da tela */
+}
+
+.titulo-principal {
+    text-align: center;
+    color: #333;
+    margin-bottom: 40px;
+}
+
+.controles-dashboard {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.botoes-esquerda, .listas-direita {
+    display: flex;
+    gap: 15px; /* Cria um espaçamento cirúrgico entre os botões/selects vizinhos */
+}
+
+#btn-cadastrar-cidade {
+    border: 2px solid #28a745;
+    color: #28a745;
+}
+
+#btn-nova-temp {
+    border: 2px solid #007bff;
+    color: #007bff;
+}
+
+.quadro-dashboard {
+    background-color: #fffce1; /* Fundo num tom de amarelo diferente */
+    border: 3px solid rgb(0, 0, 0);
+    border-radius: 12px;
+    padding: 30px;
+    min-height: 300px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.quadro-dashboard h2 {
+    text-align: center;
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #959595; /* Uma linhazinha sutil embaixo do título */
+    padding-bottom: 10px;
+}
+
+.quadro-dashboard ul {
+    list-style-type: none; /* Remove as bolinhas padrão da lista HTML */
+    padding: 0;
+}
+
+.quadro-dashboard li {
+    padding: 15px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 18px;
+    color: #555;
+}
+
+/* =========================================
+   ESTILOS DO FORMULÁRIO (Páginas de Cadastro)
+   ========================================= */
+.caixa-formulario {
+    background-color: #fffce1; 
+    border: 4px solid #570080;
+    border-radius: 12px; 
+    padding: 40px;
+    text-align: center;
+    width: 350px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); 
+    
+    /* usando o margin para centralizar a caixinha horizontalmente e empurrar um pouco para baixo */
+    margin: 100px auto; 
+}
+
+.caixa-formulario select {
+    width: 100%; /* Força o select do formulário a ocupar 100% da caixinha */
+    margin: 20px 0;
+    border-color: #272727; /* Borda verde específica para o formulário */
+}
+
+.container-botoes {
+    display: flex;
+    justify-content: space-around; 
+    margin-top: 20px;
+}
+
+#btn-cancelar {
+    border: 2px solid #dc3545; 
+    color: #dc3545;
+}
+
+#btn-registrar {
+    border: 2px solid #007bff; 
+    color: #007bff;
+}
+
+#aviso-erro {
+    color: #800000;
+    background-color: #f8d7da;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-weight: bold;
+    display: none; 
+}
+
+/* =========================================
+   EFEITOS DE HOVER E CLIQUE (Inversão de Cores)
+   ========================================= */
+
+/* Botão Cadastrar Nova Cidade */
+#btn-cadastrar-cidade:hover, #btn-cadastrar-cidade:active {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Botão Registrar Temperatura  */
+#btn-nova-temp:hover, #btn-nova-temp:active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Botão Cancelar */
+#btn-cancelar:hover, #btn-cancelar:active {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Botão Registrar */
+#btn-registrar:hover, #btn-registrar:active {
+    background-color: #007bff;
+    color: white;
+}
