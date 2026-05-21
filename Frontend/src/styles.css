@@ -111,13 +111,39 @@ select {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); 
     
     /* usando o margin para centralizar a caixinha horizontalmente e empurrar um pouco para baixo */
-    margin: 100px auto; 
+    margin: 60px auto; 
 }
 
-.caixa-formulario select {
-    width: 100%; /* Força o select do formulário a ocupar 100% da caixinha */
-    margin: 20px 0;
-    border-color: #272727; /* Borda verde específica para o formulário */
+/* Título centralizado dentro da caixa */
+.titulo-centralizado {
+    text-align: center;
+    margin-top: 0;
+}
+
+/* Organização dos campos em coluna */
+.campos-formulario {
+    display: flex;
+    flex-direction: column;
+    text-align: left; /* Alinha os labels à esquerda para facilitar a leitura */
+}
+
+/* Gruda o rótulo (texto) ao campo de baixo */
+.campos-formulario label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Espaça o campo em relação ao próximo rótulo, posso agrupar eles para terem o mesmo estilo */
+.campos-formulario input,
+.campos-formulario select {
+    padding: 10px;
+    border: 2px solid #272727;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;            /* Ocupa a largura total */
+    box-sizing: border-box; /* Garante que a borda não faça o campo vazar */
+    margin-bottom: 20px;    /* O espaço cirúrgico SÓ DEPOIS do campo */
 }
 
 .container-botoes {
@@ -144,6 +170,26 @@ select {
     margin-top: 20px;
     font-weight: bold;
     display: none; 
+}
+
+/* Estilo para avisos genéricos (usado no cadastro de temperatura) */
+.aviso-mensagem {
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-weight: bold;
+    display: none;
+    text-align: center;
+}
+
+.aviso-sucesso {
+    color: #155724;
+    background-color: #d4edda;
+}
+
+.aviso-erro {
+    color: #721c24;
+    background-color: #f8d7da;
 }
 
 /* =========================================
