@@ -30,7 +30,7 @@ def cadastrar_cidade():
         
         # Cria uma lista com os nomes das cidades (em letras minúsculas para não dar erro de maiúscula/minúscula)
         # Isso é um "List Comprehension", um jeito "Pythonico" e rápido de criar listas extraindo dados do JSON
-        cidades_validas = [cidade['nome'].lower() for cidade in resposta_ibge.json()]
+        cidades_validas = [cidade['nome'].lower() for city in resposta_ibge.json()]
 
         # Se a cidade digitada não estiver na lista oficial (é mais pro caso de testes via Postman e envio direto)
         if nome_cidade.lower() not in cidades_validas:
@@ -70,7 +70,78 @@ def cadastrar_cidade():
     except Exception as erro:
         return jsonify({"erro": f"Falha ao cadastrar no banco: {str(erro)}"}), 500
 
+# Rota para buscar todas as cidades (usada para preencher o dropdown no Front-end)
+@app.route('/cidades', methods=['GET'])
+
+def listar_cidades():
+    try:
+        # Estabelece a conexão usando o módulo do banco.py
+        conexao = banco.conectar()
+        
+        # O cursor com 'dictionary=True' já transforma os dados em dicionários (chave: valor)
+        # Isso facilita muito o retorno para o Front-end
+        cursor = conexao.cursor(dictionary=True)
+        
+        # Executa o comando SQL para selecionar tudo da tabela cidades
+        cursor.execute("SELECT * FROM cidades")
+        
+        # fetchall() captura todas as linhas retornadas pelo banco
+        lista_cidades = cursor.fetchall()
+        
+        cursor.close()
+        conexao.close()
+        
+        # Retorna a lista para o Front-end em formato JSON com Status 200 (Sucesso)
+        return jsonify(lista_cidades), 200
+
+    except Exception as erro:
+        # Em caso de qualquer falha, retorna o erro com Status 500 (Erro Interno)
+        return jsonify({"erro": f"Falha ao buscar cidades: {str(erro)}"}), 500
+
+# Rota para cadastrar a temperatura de uma cidade em uma data específica
+@app.route('/temperaturas', methods=['POST'])
+
+def cadastrar_temperatura():
+    dados = request.get_json()
+
+    # Captura os dados do JSON enviado Front-end
+    cidade_id = dados.get('cidade_id')
+    data = dados.get('data')
+    temperatura = dados.get('temperatura')
+
+    # Validação simples: verifica se todos os campos obrigatórios foram preenchidos
+    if not cidade_id or not data or temperatura is None:
+        return jsonify({"erro": "Os campos cidade_id, data e temperatura são obrigatórios"}), 400
+
+    try:
+        conexao = banco.conectar()
+        cursor = conexao.cursor()
+
+        # Comando SQL para inserção na tabela temperaturas
+        comando_sql = "INSERT INTO temperaturas (cidade_id, data, temperatura) VALUES (%s, %s, %s)"
+        valores = (cidade_id, data, temperatura)
+
+        cursor.execute(comando_sql, valores)
+        conexao.commit()
+
+        cursor.close()
+        conexao.close()
+
+        return jsonify({"status": "sucesso", "mensagem": "Temperatura cadastrada com sucesso"}), 201
+
+    # Tratamento específico para erro de duplicidade
+    except mysql.connector.IntegrityError:
+        return jsonify({
+            "erro": "duplicada", 
+            "mensagem": "Já existe uma temperatura registrada para esta cidade nesta data"
+        }), 409
+
+    # Tratamento para qualquer outro erro inesperado no banco
+    except Exception as erro:
+        return jsonify({"erro": f"Falha ao cadastrar temperatura: {str(erro)}"}), 500
+
 # Essa linha garante que o servidor só suba se eu rodar o arquivo diretamente (não sobe se for apenas importado)
 if __name__ == '__main__':
+    
     # O debug=True reinicia o servidor sozinho sempre que salvar uma alteração no código
     app.run(port=5000, debug=True)
