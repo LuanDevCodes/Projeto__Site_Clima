@@ -1,0 +1,138 @@
+<!-- Página para o cadastro de temperatura máxima de uma cidade -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Temperatura</title>
+    <link rel="stylesheet" href="src/styles.css"> <!-- Referenciando o arquivo de estilos externo -->
+</head>
+<body>
+
+    <div class="caixa-formulario">
+        <h3 class="titulo-centralizado">Cadastro de Temperatura Máxima</h3>
+        
+        <div class="campos-formulario">
+            
+            <!-- Dropdown de Cidades -->
+            <label for="select-cidade">Cidade:</label>
+            <select id="select-cidade">
+                <option value="">Carregando cidades do banco de dados...</option>
+            </select>
+
+            <!-- Campo de Data -->
+            <label for="input-data">Data:</label>
+            <input type="date" id="input-data">
+
+            <!-- Campo de Temperatura -->
+            <label for="input-temperatura">Temperatura (°C):</label>
+            <input type="number" id="input-temperatura" placeholder="Ex: 27">
+        </div>
+
+        <div class="container-botoes">
+            <button id="btn-cancelar" onclick="window.location.href='index.html'">Cancelar</button>
+            <button id="btn-registrar">Registrar</button>
+        </div>
+
+        <!-- Div de aviso usando classes do styles.css -->
+        <div id="aviso-mensagem" class="aviso-mensagem"></div>
+    </div>
+
+    <script>
+        // Carregando as cidades do próprio banco de dados ao abrir a página
+        document.addEventListener('DOMContentLoaded', async () => {
+            
+            const dropdown = document.getElementById('select-cidade');
+            try {
+                // Faz o GET na rota criada no Flask
+                const resposta = await fetch('http://127.0.0.1:5000/cidades');
+                const cidades = await resposta.json();
+                
+                dropdown.innerHTML = '<option value="">Selecione uma cidade</option>';
+                
+                // Preenche o dropdown usando o ID como 'value' e o Nome como texto visual
+                cidades.forEach(cidade => {
+                    const opcao = document.createElement('option');
+                    opcao.value = cidade.id; // O valor que vai para o banco (cidade_id)
+                    opcao.textContent = cidade.nome;
+                    dropdown.appendChild(opcao);
+                });
+            } catch (erro) {
+                dropdown.innerHTML = '<option value="">Erro ao carregar cidades</option>';
+            }
+        });
+
+        // A ação do Botão Registrar
+        document.getElementById('btn-registrar').addEventListener('click', async () => {
+            
+            // Pegando os valores dos três campos
+            const cidadeId = document.getElementById('select-cidade').value;
+            const dataEscolhida = document.getElementById('input-data').value;
+            const temperaturaDigitada = document.getElementById('input-temperatura').value;
+            
+            // Validação simples no Front-end
+            if (cidadeId === "" || dataEscolhida === "" || temperaturaDigitada === "") {
+                mostrarAviso("Por favor, preencha todos os campos", "erro");
+                return;
+            }
+
+            try {
+                // Monta o JSON e envia para a API do Python (Flask)
+                const resposta = await fetch('http://127.0.0.1:5000/temperaturas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        cidade_id: parseInt(cidadeId), 
+                        data: dataEscolhida, 
+                        temperatura: parseFloat(temperaturaDigitada) 
+                    }) 
+                });
+
+                const dados = await resposta.json();
+
+                // Verifica o Status Code que o Python devolveu
+                if (resposta.status === 201) {
+                    mostrarAviso("Temperatura registrada com sucesso", "sucesso");
+                    
+                    // Limpa os campos após o sucesso
+                    document.getElementById('input-data').value = "";
+                    document.getElementById('input-temperatura').value = "";
+                    
+                } else if (resposta.status === 409) {
+                    mostrarAviso(dados.mensagem || "Já existe registro para esta cidade nesta data", "erro");
+                
+                } else {
+                    mostrarAviso(dados.erro || "Ocorreu um erro ao salvar", "erro");
+                }
+
+            } catch (erro) {
+                mostrarAviso("Erro ao conectar com a API", "erro");
+            }
+        });
+
+        // Função para mostrar o aviso e escondê-lo depois de 10 segundos
+        function mostrarAviso(mensagem, tipo) {
+            const divAviso = document.getElementById('aviso-mensagem');
+            
+            // Define o texto e limpa classes anteriores
+            divAviso.textContent = mensagem;
+            divAviso.className = 'aviso-mensagem'; // Reseta para a classe base
+            
+            // Adiciona a classe de cor dependendo do tipo (sucesso ou erro)
+            if (tipo === 'sucesso') {
+                divAviso.classList.add('aviso-sucesso');
+            } else {
+                divAviso.classList.add('aviso-erro');
+            }
+            
+            divAviso.style.display = 'block';
+
+            // Esconde automaticamente após 10 segundos
+            setTimeout(() => {
+                divAviso.style.display = 'none';
+            }, 10000);
+        }
+    </script>
+
+</body>
+</html>
