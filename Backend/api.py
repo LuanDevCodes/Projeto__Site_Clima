@@ -140,6 +140,38 @@ def cadastrar_temperatura():
     except Exception as erro:
         return jsonify({"erro": f"Falha ao cadastrar temperatura: {str(erro)}"}), 500
 
+# Rota para buscar o histórico de temperaturas de uma cidade específica
+@app.route('/temperaturas/<int:cidade_id>', methods=['GET'])
+
+def buscar_historico_temperaturas(cidade_id):
+    try:
+        # Estabelece a conexão com o banco de dados
+        conexao = banco.conectar()
+        
+        # O cursor com 'dictionary=True' organiza os dados como um dicionário (chave: valor)
+        cursor = conexao.cursor(dictionary=True)
+        
+        # Comando SQL para selecionar apenas data e temperatura da cidade informada, do mais recente para o mais antigo
+        comando_sql = "SELECT data, temperatura FROM temperaturas WHERE cidade_id = %s ORDER BY data DESC"
+        
+        # Executa o comando passando o ID da cidade recebido pela URL
+        cursor.execute(comando_sql, (cidade_id,))
+        
+        # Captura todos os registros encontrados
+        historico = cursor.fetchall()
+        
+        # Fecha as conexões com o banco
+        cursor.close()
+        conexao.close()
+        
+        # Retorna os dados em formato JSON com Status 200 (Sucesso)
+        return jsonify(historico), 200
+
+    except Exception as erro:
+        
+        # Em caso de erro interno, retorna a mensagem de falha com Status 500
+        return jsonify({"erro": f"Falha ao buscar histórico: {str(erro)}"}), 500
+
 # Essa linha garante que o servidor só suba se eu rodar o arquivo diretamente (não sobe se for apenas importado)
 if __name__ == '__main__':
     
