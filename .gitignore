@@ -1,5 +1,8 @@
 # Configurando os arquivos que serão ignorados
 
+# O arquivo de configuração do Gemini CLI (usando para trabalhar em conjunto pelo terminal do VsCode)
+GEMINI.md
+
 # O arquivo de configuração ENV
 .env
 
