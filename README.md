@@ -22,7 +22,7 @@ A aplicação permite cadastrar cidades (com validação em tempo real através 
 * [x] Formulário de cadastro de novas cidades
 * [x] Integração com a API de Localidades do IBGE para popular listas e validar se a cidade existe no Brasil
 * [x] Proteção contra cadastro de cidades duplicadas no banco de dados
-* [ ] Registro de novas temperaturas atreladas às cidades cadastradas (Em desenvolvimento)
+* [x] Registro de novas temperaturas atreladas às cidades cadastradas
 * [ ] Dashboard interativo exibindo o Top 10 cidades mais quentes (Em desenvolvimento)
 * [ ] Exibição de um Dashboard de barras com os dados de temperatura de determinada cidade (Em desenvolvimento)
 
