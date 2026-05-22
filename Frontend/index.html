@@ -34,5 +34,53 @@
         </div>
 
     </div>
+
+    <script>
+        // Aguarda o carregamento da página
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- 1ª Requisição: Cidades ---
+            fetch('http://127.0.0.1:5000/cidades')
+                .then(res => res.json())
+                .then(cidades => {
+                    const select = document.getElementById('select-cidade');
+                    cidades.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = c.nome;
+                        select.appendChild(opt);
+                    });
+                })
+                .catch(err => console.error('Erro ao buscar cidades:', err));
+
+            // --- 2ª Requisição: Ranking ---
+            fetch('http://127.0.0.1:5000/ranking')
+                .then(res => res.json())
+                .then(ranking => {
+                    if (ranking.length > 0) {
+                        document.getElementById('titulo-quadro').textContent = 'Top 10 Cidades mais Quentes';
+                        
+                        const lista = document.getElementById('lista-historico');
+                        lista.innerHTML = ''; 
+
+                        ranking.forEach(item => {
+                            const li = document.createElement('li');
+                            
+                            // tratamento da data:
+                            // criando um objeto de data a partir do texto longo que vem do banco
+                            const dataObjeto = new Date(item.data);
+                            
+                            // usando o toLocaleDateString para extrair apenas o dia/mês/ano no padrão BR
+                            // O 'timeZone: UTC' evita que a data "volte um dia" devido ao fuso horário
+                            const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+                            
+                            li.textContent = `${item.nome} - ${dataFinal} - Máxima de ${item.max_temp}°C`;
+                            lista.appendChild(li);
+                        });
+                    }
+                })
+                .catch(err => console.error('Erro ao buscar ranking:', err));
+        });
+    </script>
 </body>
 </html>
