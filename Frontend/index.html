@@ -19,9 +19,6 @@
             </div>
 
             <div class="listas-direita">
-                <select id="select-data">
-                    <option value="">Selecionar data</option>
-                </select>
                 <select id="select-cidade">
                     <option value="">Selecionar cidade</option>
                 </select>
@@ -29,10 +26,11 @@
         </div>
 
         <div class="quadro-dashboard">
-            <h2>Top 10 cidades mais quentes registradas</h2>
-            <ul id="lista-top-10">
-                <li>Aguardando conexão com a API</li>
+            <h2 id="titulo-quadro">Selecione uma cidade</h2>
+            <ul id="lista-historico">
+                <li>Aguardando seleção...</li>
             </ul>
+            <canvas id="meuGrafico" style="display: none;"></canvas>
         </div>
 
     </div>
