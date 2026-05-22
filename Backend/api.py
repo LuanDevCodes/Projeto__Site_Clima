@@ -91,7 +91,7 @@ def listar_cidades():
         cursor.close()
         conexao.close()
         
-        # Retorna a lista para o Front-end em formato JSON com Status 200 (Sucesso)
+        # Retorna a lista para o Front-end em formato JSON with Status 200 (Sucesso)
         return jsonify(lista_cidades), 200
 
     except Exception as erro:
@@ -171,6 +171,47 @@ def buscar_historico_temperaturas(cidade_id):
         
         # Em caso de erro interno, retorna a mensagem de falha com Status 500
         return jsonify({"erro": f"Falha ao buscar histórico: {str(erro)}"}), 500
+
+# Rota para buscar o ranking das 10 maiores temperaturas registradas
+@app.route('/ranking', methods=['GET'])
+
+def buscar_ranking_temperaturas():
+    try:
+        # Estabelece a conexão com o banco de dados
+        conexao = banco.conectar()
+        
+        # O cursor com 'dictionary=True' organiza os dados como um dicionário (chave: valor)
+        cursor = conexao.cursor(dictionary=True)
+        
+        # Comando SQL que cruza as tabelas para encontrar a temperatura máxima de cada cidade
+        # Filtra pela maior temperatura individual de cada ID de cidade, ordena do maior para o menor e limita em 10
+        comando_sql = """
+            SELECT c.nome, t1.temperatura as max_temp, t1.data 
+            FROM cidades c 
+            JOIN temperaturas t1 ON c.id = t1.cidade_id 
+            WHERE t1.temperatura = (SELECT MAX(t2.temperatura) FROM temperaturas t2 WHERE t2.cidade_id = c.id) 
+            GROUP BY c.id 
+            ORDER BY max_temp DESC 
+            LIMIT 10
+        """
+        
+        # Executa a busca no banco de dados
+        cursor.execute(comando_sql)
+        
+        # Captura os 10 primeiros resultados encontrados
+        ranking = cursor.fetchall()
+        
+        # Fecha as conexões com o banco para liberar recursos
+        cursor.close()
+        conexao.close()
+        
+        # Retorna o ranking para o Front-end em formato JSON com Status 200 (Sucesso)
+        return jsonify(ranking), 200
+
+    except Exception as erro:
+        
+        # Em caso de qualquer falha no processo, retorna o erro com Status 500 (Erro Interno)
+        return jsonify({"erro": f"Falha ao buscar ranking: {str(erro)}"}), 500
 
 # Essa linha garante que o servidor só suba se eu rodar o arquivo diretamente (não sobe se for apenas importado)
 if __name__ == '__main__':
