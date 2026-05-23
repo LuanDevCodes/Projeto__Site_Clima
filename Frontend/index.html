@@ -36,10 +36,10 @@
     </div>
 
     <script>
-        // Aguarda o carregamento da página
+        // Aguarda o carregamento total da página antes de executar o script
         document.addEventListener('DOMContentLoaded', () => {
             
-            // --- 1ª Requisição: Cidades ---
+            // 1ª Requisição: Carregar as cidades no select
             fetch('http://127.0.0.1:5000/cidades')
                 .then(res => res.json())
                 .then(cidades => {
@@ -53,7 +53,7 @@
                 })
                 .catch(err => console.error('Erro ao buscar cidades:', err));
 
-            // --- 2ª Requisição: Ranking ---
+            // 2ª Requisição: Carregar o Ranking Inicial (Top 10)
             fetch('http://127.0.0.1:5000/ranking')
                 .then(res => res.json())
                 .then(ranking => {
@@ -66,12 +66,8 @@
                         ranking.forEach(item => {
                             const li = document.createElement('li');
                             
-                            // tratamento da data:
-                            // criando um objeto de data a partir do texto longo que vem do banco
+                            // tratamento da data: objeto de data e fuso horário UTC para evitar erros de data
                             const dataObjeto = new Date(item.data);
-                            
-                            // usando o toLocaleDateString para extrair apenas o dia/mês/ano no padrão BR
-                            // O 'timeZone: UTC' evita que a data "volte um dia" devido ao fuso horário
                             const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
                             
                             li.textContent = `${item.nome} - ${dataFinal} - Máxima de ${item.max_temp}°C`;
@@ -80,6 +76,58 @@
                     }
                 })
                 .catch(err => console.error('Erro ao buscar ranking:', err));
+
+            // 3ª Parte: Adicionando Interatividade ao Select
+            const selectCidade = document.getElementById('select-cidade');
+            const tituloQuadro = document.getElementById('titulo-quadro');
+            const listaHistorico = document.getElementById('lista-historico');
+
+            // Ouvinte de evento para quando o usuário mudar a cidade selecionada (evento 'change')
+            selectCidade.addEventListener('change', () => {
+                const idCidade = selectCidade.value;
+
+                // Se o valor for vazio (seleção padrão), volta a exibir o ranking de 10 cidades
+                if (idCidade === "") {
+                    tituloQuadro.textContent = 'Top 10 Cidades mais Quentes';
+                    listaHistorico.innerHTML = '';
+
+                    fetch('http://127.0.0.1:5000/ranking')
+                        .then(res => res.json())
+                        .then(ranking => {
+                            ranking.forEach(item => {
+                                const li = document.createElement('li');
+                                const dataObjeto = new Date(item.data);
+                                const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+                                
+                                // No ranking, é exibido: nome da cidade, data e a temperatura máxima
+                                li.textContent = `${item.nome} - ${dataFinal} - Máxima de ${item.max_temp}°C`;
+                                listaHistorico.appendChild(li);
+                            });
+                        })
+                        .catch(err => console.error('Erro ao buscar ranking:', err));
+
+                } else {
+                    // Se uma cidade específica for selecionada, exibe o histórico detalhado dela
+                    const nomeCidade = selectCidade.options[selectCidade.selectedIndex].text;
+                    tituloQuadro.textContent = `Histórico - ${nomeCidade}`;
+                    listaHistorico.innerHTML = '';
+
+                    fetch(`http://127.0.0.1:5000/temperaturas/${idCidade}`)
+                        .then(res => res.json())
+                        .then(historico => {
+                            historico.forEach(item => {
+                                const li = document.createElement('li');
+                                const dataObjeto = new Date(item.data);
+                                const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+                                
+                                // No histórico da cidade, é exibido: data e a temperatura registrada
+                                li.textContent = `${dataFinal} - ${item.temperatura}°C`;
+                                listaHistorico.appendChild(li);
+                            });
+                        })
+                        .catch(err => console.error('Erro ao buscar histórico:', err));
+                }
+            });
         });
     </script>
 </body>
