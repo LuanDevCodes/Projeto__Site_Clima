@@ -24,7 +24,7 @@ A aplicação permite cadastrar cidades (com validação em tempo real através 
 * [x] Proteção contra cadastro de cidades duplicadas no banco de dados
 * [x] Registro de novas temperaturas atreladas às cidades cadastradas
 * [x] Lista exibindo o Top 10 cidades mais quentes na página principal
-* [ ] Exibição de um Dashboard de barras com os dados de temperatura de determinada cidade (Em desenvolvimento)
+* [x] Exibição de um Dashboard de barras com os dados de temperatura de determinada cidade
 
 ##
 
