@@ -6,6 +6,9 @@
     <meta charset="UTF-8">
     <title>Monitoramento Climático</title>
     <link rel="stylesheet" href="src/styles.css">
+
+    <!-- usei o CDN do Chart.js para criação do gráfico de barras -->
+    <script src='https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js'></script>
 </head>
 <body>
     <div class="container-dashboard">
@@ -30,12 +33,51 @@
             <ul id="lista-historico">
                 <li>Aguardando seleção...</li>
             </ul>
+            <!-- Espaço reservado para o gráfico -->
             <canvas id="meuGrafico" style="display: none;"></canvas>
         </div>
 
     </div>
 
     <script>
+        // Variável global para armazenar e controlar a instância do gráfico
+        let chartInstancia = null;
+
+        // Função responsável por desenhar o gráfico na tela
+        function desenharGrafico(historico) {
+            const ctx = document.getElementById('meuGrafico').getContext('2d');
+
+            // Se já existir um gráfico, ele é destruído para evitar sobreposição
+            if (chartInstancia) {
+                chartInstancia.destroy();
+            }
+
+            // Inverte o array para mostrar da data mais antiga para a mais nova (esquerda para direita)
+            const historicoOrdenado = historico.slice().reverse();
+
+            // Extração das datas formatadas para os labels (eixo X)
+            const labels = historicoOrdenado.map(item => {
+                const dataObjeto = new Date(item.data);
+                return dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+            });
+
+            // Extração das temperaturas para os dados (eixo Y)
+            const dados = historicoOrdenado.map(item => item.temperatura);
+
+            // Criação do novo gráfico de barras
+            chartInstancia = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temperatura °C',
+                        data: dados,
+                        backgroundColor: '#007bff'
+                    }]
+                }
+            });
+        }
+
         // Aguarda o carregamento total da página antes de executar o script
         document.addEventListener('DOMContentLoaded', () => {
             
@@ -65,8 +107,6 @@
 
                         ranking.forEach(item => {
                             const li = document.createElement('li');
-                            
-                            // tratamento da data: objeto de data e fuso horário UTC para evitar erros de data
                             const dataObjeto = new Date(item.data);
                             const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
                             
@@ -82,12 +122,15 @@
             const tituloQuadro = document.getElementById('titulo-quadro');
             const listaHistorico = document.getElementById('lista-historico');
 
-            // Ouvinte de evento para quando o usuário mudar a cidade selecionada (evento 'change')
             selectCidade.addEventListener('change', () => {
                 const idCidade = selectCidade.value;
 
-                // Se o valor for vazio (seleção padrão), volta a exibir o ranking de 10 cidades
                 if (idCidade === "") {
+                    // Modo Ranking: Esconde o gráfico e mostra a lista
+                    document.getElementById("meuGrafico").style.display = "none";
+                    listaHistorico.style.display = "block";
+                    if(chartInstancia) chartInstancia.destroy();
+
                     tituloQuadro.textContent = 'Top 10 Cidades mais Quentes';
                     listaHistorico.innerHTML = '';
 
@@ -98,8 +141,6 @@
                                 const li = document.createElement('li');
                                 const dataObjeto = new Date(item.data);
                                 const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-                                
-                                // No ranking, é exibido: nome da cidade, data e a temperatura máxima
                                 li.textContent = `${item.nome} - ${dataFinal} - Máxima de ${item.max_temp}°C`;
                                 listaHistorico.appendChild(li);
                             });
@@ -107,23 +148,19 @@
                         .catch(err => console.error('Erro ao buscar ranking:', err));
 
                 } else {
-                    // Se uma cidade específica for selecionada, exibe o histórico detalhado dela
+                    // Modo Histórico: Esconde a lista e mostra o gráfico
                     const nomeCidade = selectCidade.options[selectCidade.selectedIndex].text;
                     tituloQuadro.textContent = `Histórico - ${nomeCidade}`;
-                    listaHistorico.innerHTML = '';
+                    listaHistorico.innerHTML = ''; // Limpa a lista
+                    
+                    listaHistorico.style.display = "none";
+                    document.getElementById("meuGrafico").style.display = "block";
 
                     fetch(`http://127.0.0.1:5000/temperaturas/${idCidade}`)
                         .then(res => res.json())
                         .then(historico => {
-                            historico.forEach(item => {
-                                const li = document.createElement('li');
-                                const dataObjeto = new Date(item.data);
-                                const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-                                
-                                // No histórico da cidade, é exibido: data e a temperatura registrada
-                                li.textContent = `${dataFinal} - ${item.temperatura}°C`;
-                                listaHistorico.appendChild(li);
-                            });
+                            // Chama a função para desenhar o gráfico com os dados recebidos
+                            desenharGrafico(historico);
                         })
                         .catch(err => console.error('Erro ao buscar histórico:', err));
                 }
