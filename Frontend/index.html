@@ -85,13 +85,15 @@
             fetch('http://127.0.0.1:5000/cidades')
                 .then(res => res.json())
                 .then(cidades => {
-                    const select = document.getElementById('select-cidade');
-                    cidades.forEach(c => {
-                        const opt = document.createElement('option');
-                        opt.value = c.id;
-                        opt.textContent = c.nome;
-                        select.appendChild(opt);
-                    });
+                    if (Array.isArray(cidades)) {
+                        const select = document.getElementById('select-cidade');
+                        cidades.forEach(c => {
+                            const opt = document.createElement('option');
+                            opt.value = c.id;
+                            opt.textContent = c.nome;
+                            select.appendChild(opt);
+                        });
+                    }
                 })
                 .catch(err => console.error('Erro ao buscar cidades:', err));
 
@@ -99,18 +101,25 @@
             fetch('http://127.0.0.1:5000/ranking')
                 .then(res => res.json())
                 .then(ranking => {
-                    if (ranking.length > 0) {
+                    if (Array.isArray(ranking) && ranking.length > 0) {
                         document.getElementById('titulo-quadro').textContent = 'Top 10 Cidades mais Quentes';
                         
                         const lista = document.getElementById('lista-historico');
                         lista.innerHTML = ''; 
 
-                        ranking.forEach(item => {
+                        ranking.forEach((item, index) => {
                             const li = document.createElement('li');
                             const dataObjeto = new Date(item.data);
                             const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
                             
-                            li.textContent = `${item.nome} - ${dataFinal} - Máxima de ${item.max_temp}°C`;
+                            // Remove as casas decimais arredondando para o inteiro mais próximo
+                            const tempInteira = Math.round(item.max_temp);
+                            
+                            // Cria a bolinha com a cor correspondente à sua posição no ranking (index + 1)
+                            li.innerHTML = `
+                                <span class="bolinha-ranking ranking-${index + 1}"></span>
+                                <span>${item.nome} - ${dataFinal} - Máxima de ${tempInteira}°C</span>
+                            `;
                             lista.appendChild(li);
                         });
                     }
@@ -137,13 +146,21 @@
                     fetch('http://127.0.0.1:5000/ranking')
                         .then(res => res.json())
                         .then(ranking => {
-                            ranking.forEach(item => {
-                                const li = document.createElement('li');
-                                const dataObjeto = new Date(item.data);
-                                const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
-                                li.textContent = `${item.nome} - ${dataFinal} - Máxima de ${item.max_temp}°C`;
-                                listaHistorico.appendChild(li);
-                            });
+                            if (Array.isArray(ranking)) {
+                                ranking.forEach((item, index) => {
+                                    const li = document.createElement('li');
+                                    const dataObjeto = new Date(item.data);
+                                    const dataFinal = dataObjeto.toLocaleDateString('pt-BR', {timeZone: 'UTC'});
+                                    
+                                    const tempInteira = Math.round(item.max_temp);
+
+                                    li.innerHTML = `
+                                        <span class="bolinha-ranking ranking-${index + 1}"></span>
+                                        <span>${item.nome} - ${dataFinal} - Máxima de ${tempInteira}°C</span>
+                                    `;
+                                    listaHistorico.appendChild(li);
+                                });
+                            }
                         })
                         .catch(err => console.error('Erro ao buscar ranking:', err));
 
@@ -159,8 +176,10 @@
                     fetch(`http://127.0.0.1:5000/temperaturas/${idCidade}`)
                         .then(res => res.json())
                         .then(historico => {
-                            // Chama a função para desenhar o gráfico com os dados recebidos
-                            desenharGrafico(historico);
+                            if (Array.isArray(historico)) {
+                                // Chama a função para desenhar o gráfico com os dados recebidos
+                                desenharGrafico(historico);
+                            }
                         })
                         .catch(err => console.error('Erro ao buscar histórico:', err));
                 }
