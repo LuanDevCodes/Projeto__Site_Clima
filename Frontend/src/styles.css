@@ -92,11 +92,34 @@ select {
 }
 
 .quadro-dashboard li {
+    display: flex;
+    align-items: center;
     padding: 15px 10px;
     border-bottom: 1px solid #eee;
     font-size: 18px;
     color: #555;
 }
+
+/* Estilo da bolinha de indicação do ranking */
+.bolinha-ranking {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 15px;
+    flex-shrink: 0; /* Evita que a bolinha amasse em textos longos */
+}
+
+/* Progressão de cores: do laranja escuro (mais quente) para o claro */
+.ranking-1 { background-color: #d35400; }
+.ranking-2 { background-color: #e67e22; }
+.ranking-3 { background-color: #f39c12; }
+.ranking-4 { background-color: #fd9644; }
+.ranking-5 { background-color: #feb236; }
+.ranking-6 { background-color: #ffc46b; }
+.ranking-7 { background-color: #ffd194; }
+.ranking-8 { background-color: #ffdfba; }
+.ranking-9 { background-color: #ffecd2; }
+.ranking-10 { background-color: #fff5e6; }
 
 /* =========================================
    ESTILOS DO FORMULÁRIO (Páginas de Cadastro)
