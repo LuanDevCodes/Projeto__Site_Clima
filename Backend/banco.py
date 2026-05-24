@@ -12,25 +12,30 @@ caminho_env = os.path.join(pasta_atual, '.env')
 load_dotenv(caminho_env, override=True)
 
 def conectar():
-    #
-    #  Buscando as variáveis com os novos nomes blindados
+    
+    # Recarregamos o .env aqui dentro para garantir que mudanças no arquivo sejam percebidas sem reiniciar o servidor
+    pasta_atual = os.path.dirname(os.path.abspath(__file__))
+    caminho_env = os.path.join(pasta_atual, '.env')
+    load_dotenv(caminho_env, override=True)
+
+    # Buscando as variáveis e definindo a porta padrão 3306 caso ela não seja encontrada
     host = os.getenv("DB_HOST")
-    port = os.getenv("DB_PORT")
+    port_env = os.getenv("DB_PORT")
+    port = int(port_env)
     user = os.getenv("DB_USER")
     
     # Lidando com a senha vazia de forma segura
     password_env = os.getenv("DB_PASSWORD")
-    password = "" if password_env in [None, '""', "''"] else password_env
-    
+    password = os.getenv("DB_PASSWORD")
     database = os.getenv("DB_NAME")
 
     # A conexão cirúrgica e à prova de falhas com o XAMPP
     conexao = mysql.connector.connect(
         host=host,
-        port=int(port),
+        port=port,
         user=user,
         password=password,
         database=database,
-        use_pure=True # Esta linha é a vacina contra o bug 'Failed raising error'
+        use_pure=True
     )
     return conexao
