@@ -30,7 +30,7 @@ def cadastrar_cidade():
         
         # Cria uma lista com os nomes das cidades (em letras minúsculas para não dar erro de maiúscula/minúscula)
         # Isso é um "List Comprehension", um jeito "Pythonico" e rápido de criar listas extraindo dados do JSON
-        cidades_validas = [cidade['nome'].lower() for city in resposta_ibge.json()]
+        cidades_validas = [cidade['nome'].lower() for cidade in resposta_ibge.json()]
 
         # Se a cidade digitada não estiver na lista oficial (é mais pro caso de testes via Postman e envio direto)
         if nome_cidade.lower() not in cidades_validas:
@@ -186,11 +186,11 @@ def buscar_ranking_temperaturas():
         # Comando SQL que cruza as tabelas para encontrar a temperatura máxima de cada cidade
         # Filtra pela maior temperatura individual de cada ID de cidade, ordena do maior para o menor e limita em 10
         comando_sql = """
-            SELECT c.nome, t1.temperatura as max_temp, t1.data 
+            SELECT c.nome, t1.temperatura as max_temp, MAX(t1.data) as data 
             FROM cidades c 
             JOIN temperaturas t1 ON c.id = t1.cidade_id 
             WHERE t1.temperatura = (SELECT MAX(t2.temperatura) FROM temperaturas t2 WHERE t2.cidade_id = c.id) 
-            GROUP BY c.id 
+            GROUP BY c.id, t1.temperatura
             ORDER BY max_temp DESC 
             LIMIT 10
         """
